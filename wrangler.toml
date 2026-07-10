@@ -1,0 +1,12 @@
+name = "wish"
+compatibility_date = "2024-11-01"
+pages_build_output_dir = ".svelte-kit/cloudflare"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "wish-db"
+database_id = "623c351f-6c40-4f2a-8390-6e7f94faef64"
+
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "wish-images"
