@@ -19,6 +19,7 @@ export async function deleteEntry(db: D1Database, id: string): Promise<void> {
 	await db.batch([
 		db.prepare('DELETE FROM votes WHERE entry_id = ?').bind(id),
 		db.prepare('DELETE FROM comments WHERE entry_id = ?').bind(id),
+		db.prepare('DELETE FROM entry_tags WHERE entry_id = ?').bind(id),
 		db.prepare('DELETE FROM entries WHERE id = ?').bind(id)
 	]);
 }

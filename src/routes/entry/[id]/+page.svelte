@@ -1,9 +1,10 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import type { PageData, ActionData } from './$types';
-	import { timeAgo } from '$lib/utils';
+	import { timeAgo, fitTextClass } from '$lib/utils';
 	import TypeBadge from '$lib/components/TypeBadge.svelte';
 	import VoteButton from '$lib/components/VoteButton.svelte';
+	import TagChip from '$lib/components/TagChip.svelte';
 	import Turnstile from '$lib/components/Turnstile.svelte';
 
 	let { data, form }: { data: PageData; form: ActionData } = $props();
@@ -47,7 +48,7 @@
 			<span class="ml-auto text-xs font-medium text-faint">{timeAgo(entry.created_at)}</span>
 		</div>
 
-		<h1 class="mt-5 font-display text-2xl font-bold leading-snug tracking-tight text-ink sm:text-[28px]">
+		<h1 class="mt-5 whitespace-pre-line font-display font-semibold tracking-[-0.01em] text-ink {fitTextClass(entry.text, 'card')}">
 			{entry.text}
 		</h1>
 
@@ -83,6 +84,14 @@
 		<p class="mt-4 text-xs text-faint">
 			Posted by <span class="font-semibold text-muted">{entry.author_name ?? 'Anonymous'}</span>
 		</p>
+
+		{#if entry.tags?.length}
+			<div class="mt-4 flex flex-wrap gap-2 border-t border-raised pt-4">
+				{#each entry.tags as tag (tag.id)}
+					<TagChip id={tag.id} label={tag.label} />
+				{/each}
+			</div>
+		{/if}
 
 		{#if data.isAdmin}
 			<form

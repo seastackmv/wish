@@ -3,11 +3,13 @@
 	import type { EntryType } from '$lib/types';
 	import type { PageData } from './$types';
 	import Turnstile from '$lib/components/Turnstile.svelte';
+	import TagInput from '$lib/components/TagInput.svelte';
 
 	let { data }: { data: PageData } = $props();
 
 	let type = $state<EntryType>('wish');
 	let text = $state('');
+	let tags = $state<string[]>([]);
 	let anonymous = $state(false);
 
 	let submitting = $state(false);
@@ -116,7 +118,7 @@
 			const res = await fetch('/api/entries', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ type, text: t, image_key: imageKey, anonymous, turnstile_token: turnstileToken })
+				body: JSON.stringify({ type, text: t, tags, image_key: imageKey, anonymous, turnstile_token: turnstileToken })
 			});
 			if (!res.ok) {
 				const e = await res.json().catch(() => ({}));
@@ -185,6 +187,11 @@
 			aria-label={type === 'wish' ? 'Describe your wish or idea' : 'Describe the problem'}
 			class="mt-5 w-full resize-none rounded-3xl bg-raised px-5 py-5 text-2xl font-medium leading-relaxed tracking-tight text-ink outline-none transition-colors placeholder:font-normal placeholder:text-faint focus:bg-raised-2 sm:px-6 sm:py-6 sm:text-3xl"
 		></textarea>
+
+		<div class="mt-4">
+			<span class="mb-2 block text-sm font-semibold text-ink">Tags <span class="font-normal text-faint">(optional)</span></span>
+			<TagInput bind:tags suggestions={data.popularTags} />
+		</div>
 
 		{#if previewUrl}
 			<div class="relative mt-4 overflow-hidden rounded-3xl">

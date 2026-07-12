@@ -1,21 +1,34 @@
 <script lang="ts">
+	import { page } from '$app/state';
 	import type { PageData } from './$types';
 	import EntryCard from '$lib/components/EntryCard.svelte';
 	import VirtualItem from '$lib/components/VirtualItem.svelte';
+	import CardDeck from '$lib/components/CardDeck.svelte';
+	import TagChip from '$lib/components/TagChip.svelte';
 
 	let { data }: { data: PageData } = $props();
 
 	const wishes = $derived(data.wishes ?? []);
 	const pains = $derived(data.pains ?? []);
+	const allTags = $derived(data.tags ?? []);
 
+	let view = $state<'grid' | 'cards'>('grid');
 	let tab = $state<'all' | 'wish' | 'pain'>('all');
 	let sort = $state<'popular' | 'latest'>('popular');
 	let query = $state('');
 
+	// active tag comes from the ?tag= query param, so tag chips everywhere link into this
+	const activeTag = $derived(page.url.searchParams.get('tag'));
+	const activeTagMeta = $derived(allTags.find((t) => t.id === activeTag));
+
 	const tabbed = $derived(tab === 'wish' ? wishes : tab === 'pain' ? pains : [...wishes, ...pains]);
 
+	const byTag = $derived(
+		activeTag ? tabbed.filter((e) => e.tags?.some((t) => t.id === activeTag)) : tabbed
+	);
+
 	const sorted = $derived(
-		[...tabbed].sort(
+		[...byTag].sort(
 			sort === 'latest'
 				? (a, b) => b.created_at - a.created_at
 				: (a, b) => b.votes - a.votes || b.created_at - a.created_at
@@ -27,6 +40,17 @@
 			? sorted.filter((e) => e.text.toLowerCase().includes(query.trim().toLowerCase()))
 			: sorted
 	);
+
+	// popular tags for the discovery row, narrowed by the search box when present
+	const shownTags = $derived(
+		(query.trim()
+			? allTags.filter((t) => t.label.toLowerCase().includes(query.trim().toLowerCase()))
+			: allTags
+		).slice(0, 20)
+	);
+
+	// remount the deck (resetting to the first card) whenever the working set changes
+	const deckKey = $derived(`${tab}|${sort}|${query}|${activeTag ?? ''}`);
 
 	const tabs = $derived([
 		{ value: 'all' as const, label: 'All', count: wishes.length + pains.length },
@@ -40,11 +64,36 @@
 </svelte:head>
 
 <section class="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
-	<header class="mb-6">
-		<h1 class="font-display text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">The feed</h1>
-		<p class="mt-2 text-[15px] text-muted">
-			Everything citizens are wishing for and struggling with.
-		</p>
+	<header class="mb-6 flex flex-wrap items-end justify-between gap-4">
+		<div>
+			<h1 class="font-display text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">The feed</h1>
+			<p class="mt-2 text-[15px] text-muted">
+				Everything citizens are wishing for and struggling with.
+			</p>
+		</div>
+
+		<div role="group" aria-label="Choose view" class="inline-flex shrink-0 gap-1 rounded-full bg-raised p-1">
+			<button
+				onclick={() => (view = 'grid')}
+				aria-pressed={view === 'grid'}
+				class="inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-semibold transition-colors {view === 'grid'
+					? 'bg-surface text-ink shadow-sm'
+					: 'text-muted hover:text-ink'}"
+			>
+				<svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+				Grid
+			</button>
+			<button
+				onclick={() => (view = 'cards')}
+				aria-pressed={view === 'cards'}
+				class="inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-semibold transition-colors {view === 'cards'
+					? 'bg-surface text-ink shadow-sm'
+					: 'text-muted hover:text-ink'}"
+			>
+				<svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="14" rx="2.5"/><path d="M8 19v2M16 19v2"/></svg>
+				Cards
+			</button>
+		</div>
 	</header>
 
 	<div class="mb-6 space-y-4">
@@ -83,23 +132,66 @@
 				<input
 					bind:value={query}
 					type="search"
-					aria-label="Search entries"
-					placeholder="Search…"
+					aria-label="Search entries or tags"
+					placeholder="Search entries or tags…"
 					class="w-full rounded-full bg-raised py-2.5 pl-11 pr-4 text-sm text-ink outline-none transition-colors placeholder:text-faint focus:bg-raised-2"
 				/>
 			</div>
 		</div>
+
+		{#if allTags.length}
+			<div class="space-y-3">
+				{#if activeTag}
+					<div class="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-2xl bg-accent/10 px-4 py-3">
+						<span class="text-sm text-muted">Filtering by</span>
+						<span class="inline-flex items-center gap-1 rounded-full bg-accent px-3 py-1 text-sm font-bold text-on-accent">
+							<span class="opacity-60">#</span>{activeTagMeta?.label ?? activeTag}
+						</span>
+						<span class="text-sm text-faint">{entries.length} {entries.length === 1 ? 'result' : 'results'}</span>
+						<a href="/browse" class="ml-auto inline-flex items-center gap-1.5 rounded-full bg-surface px-3 py-1.5 text-sm font-semibold text-ink transition-colors hover:bg-raised">
+							<svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+							Clear
+						</a>
+					</div>
+				{/if}
+
+				<div class="flex flex-wrap items-center gap-1.5">
+					<span class="mr-1 text-xs font-bold uppercase tracking-wide text-faint">Tags</span>
+					{#each shownTags as t (t.id)}
+						<TagChip id={t.id} label={t.label} count={t.count} active={t.id === activeTag} />
+					{:else}
+						<span class="text-xs text-faint">No tags match your search.</span>
+					{/each}
+				</div>
+			</div>
+		{/if}
 	</div>
 
-	{#if entries.length === 0}
+	{#if view === 'cards'}
+		<div class="pt-2">
+			{#key deckKey}
+				<CardDeck {entries} />
+			{/key}
+		</div>
+	{:else if entries.length === 0}
 		<div class="rounded-3xl bg-surface px-6 py-20 text-center">
 			<p class="font-display text-xl font-bold text-ink">Nothing here yet</p>
 			<p class="mt-2 text-sm text-muted">
-				{query ? 'Nothing matches your search.' : 'Be the first to post.'}
+				{query
+					? 'Nothing matches your search.'
+					: activeTag
+						? 'No entries have this tag yet.'
+						: 'Be the first to post.'}
 			</p>
-			<a href="/" class="mt-6 inline-flex rounded-full bg-accent px-5 py-2.5 text-sm font-bold text-on-accent transition-all hover:brightness-110">
-				Post something
-			</a>
+			{#if activeTag}
+				<a href="/browse" class="mt-6 inline-flex rounded-full bg-raised px-5 py-2.5 text-sm font-bold text-ink transition-colors hover:bg-raised-2">
+					Clear tag filter
+				</a>
+			{:else}
+				<a href="/" class="mt-6 inline-flex rounded-full bg-accent px-5 py-2.5 text-sm font-bold text-on-accent transition-all hover:brightness-110">
+					Post something
+				</a>
+			{/if}
 		</div>
 	{:else}
 		<div class="grid grid-cols-1 gap-5 md:grid-cols-2">

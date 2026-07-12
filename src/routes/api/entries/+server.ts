@@ -2,6 +2,8 @@ import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { monthYear } from '$lib/utils';
 import { CATEGORY_VALUES } from '$lib/types';
+import { normalizeTags, parseTagsJson } from '$lib/tags';
+import { TAGS_SELECT, tagWriteStatements } from '$lib/server/tags';
 import { verifyTurnstile } from '$lib/server/turnstile';
 import { assertSameOrigin } from '$lib/server/security';
 
@@ -18,30 +20,35 @@ export const GET: RequestHandler = async ({ url, platform }) => {
 	const offset = Number(url.searchParams.get('offset') ?? 0);
 
 	const cols =
-		'id, type, text, category, votes, comment_count, author_name, image_key, month_year, created_at';
+		'e.id, e.type, e.text, e.category, e.votes, e.comment_count, e.author_name, e.image_key, e.month_year, e.created_at';
 
 	const sort = url.searchParams.get('sort') === 'latest' ? 'latest' : 'popular';
 	const orderBy =
-		sort === 'latest' ? 'created_at DESC' : 'votes DESC, created_at DESC';
+		sort === 'latest' ? 'e.created_at DESC' : 'e.votes DESC, e.created_at DESC';
 
 	let rows;
 	if (category && (CATEGORY_VALUES as readonly string[]).includes(category)) {
 		rows = await db
 			.prepare(
-				`SELECT ${cols} FROM entries WHERE type = ? AND category = ? AND hidden = 0 ORDER BY ${orderBy} LIMIT ? OFFSET ?`
+				`SELECT ${cols}, ${TAGS_SELECT} FROM entries e WHERE e.type = ? AND e.category = ? AND e.hidden = 0 ORDER BY ${orderBy} LIMIT ? OFFSET ?`
 			)
 			.bind(type, category, limit, offset)
-			.all();
+			.all<{ tags_json: string }>();
 	} else {
 		rows = await db
 			.prepare(
-				`SELECT ${cols} FROM entries WHERE type = ? AND hidden = 0 ORDER BY ${orderBy} LIMIT ? OFFSET ?`
+				`SELECT ${cols}, ${TAGS_SELECT} FROM entries e WHERE e.type = ? AND e.hidden = 0 ORDER BY ${orderBy} LIMIT ? OFFSET ?`
 			)
 			.bind(type, limit, offset)
-			.all();
+			.all<{ tags_json: string }>();
 	}
 
-	return json({ entries: rows.results, offset, limit });
+	const entries = (rows.results ?? []).map(({ tags_json, ...e }) => ({
+		...e,
+		tags: parseTagsJson(tags_json)
+	}));
+
+	return json({ entries, offset, limit });
 };
 
 export const POST: RequestHandler = async ({ request, url, platform, locals }) => {
@@ -77,17 +84,21 @@ export const POST: RequestHandler = async ({ request, url, platform, locals }) =
 	const userId = locals.user && !anonymous ? locals.user.id : null;
 	const authorName = locals.user && !anonymous ? locals.user.display_name : null;
 
+	const tags = normalizeTags(body.tags);
+
 	const id = crypto.randomUUID();
 	const now = Date.now();
 	const my = monthYear();
 
-	await db
-		.prepare(
-			`INSERT INTO entries (id, type, text, category, votes, comment_count, user_id, author_name, image_key, month_year, created_at)
-			 VALUES (?, ?, ?, ?, 0, 0, ?, ?, ?, ?, ?)`
-		)
-		.bind(id, body.type, text, category, userId, authorName, imageKey, my, now)
-		.run();
+	await db.batch([
+		db
+			.prepare(
+				`INSERT INTO entries (id, type, text, category, votes, comment_count, user_id, author_name, image_key, month_year, created_at)
+				 VALUES (?, ?, ?, ?, 0, 0, ?, ?, ?, ?, ?)`
+			)
+			.bind(id, body.type, text, category, userId, authorName, imageKey, my, now),
+		...tagWriteStatements(db, id, tags, now)
+	]);
 
 	return json(
 		{
@@ -100,7 +111,8 @@ export const POST: RequestHandler = async ({ request, url, platform, locals }) =
 			author_name: authorName,
 			image_key: imageKey,
 			month_year: my,
-			created_at: now
+			created_at: now,
+			tags
 		},
 		{ status: 201 }
 	);

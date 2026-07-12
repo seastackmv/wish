@@ -1,10 +1,13 @@
 <script lang="ts">
 	import type { Entry } from '$lib/types';
-	import { timeAgo } from '$lib/utils';
+	import { timeAgo, fitTextClass } from '$lib/utils';
 	import TypeBadge from './TypeBadge.svelte';
 	import VoteButton from './VoteButton.svelte';
+	import TagChip from './TagChip.svelte';
 
 	let { entry }: { entry: Entry } = $props();
+
+	const textClass = $derived(fitTextClass(entry.text, 'card'));
 </script>
 
 <article
@@ -27,10 +30,18 @@
 		</div>
 
 		<a href={`/entry/${entry.id}`} class="after:absolute after:inset-0 after:content-['']">
-			<p class="line-clamp-5 font-display text-xl font-bold leading-snug tracking-tight text-ink sm:text-2xl">
+			<p class="line-clamp-5 whitespace-pre-line font-display font-semibold tracking-[-0.01em] text-ink {textClass}">
 				{entry.text}
 			</p>
 		</a>
+
+		{#if entry.tags?.length}
+			<div class="relative z-10 flex flex-wrap gap-1.5">
+				{#each entry.tags as tag (tag.id)}
+					<TagChip id={tag.id} label={tag.label} />
+				{/each}
+			</div>
+		{/if}
 
 		<div class="mt-auto flex items-center gap-4 pt-1">
 			<div class="relative z-10">

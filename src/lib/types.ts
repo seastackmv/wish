@@ -1,3 +1,5 @@
+import type { TagRef } from './tags';
+
 export type EntryType = 'wish' | 'pain';
 
 export type Category =
@@ -33,6 +35,8 @@ export interface Entry {
 	user_voted?: boolean;
 
 	hidden?: number;
+
+	tags?: TagRef[];
 }
 
 export interface Comment {

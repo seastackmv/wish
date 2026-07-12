@@ -1,10 +1,12 @@
 <script lang="ts">
 	import type { Entry } from '$lib/types';
+	import { fitTextClass } from '$lib/utils';
 
 	let { entry, rank }: { entry: Entry; rank: number } = $props();
 
 	const tint = ['#b8860b', '#6b7280', '#a0522d'];
 	const color = $derived(tint[rank - 1] ?? '#9aa4b2');
+	const textClass = $derived(fitTextClass(entry.text, 'card'));
 </script>
 
 <a
@@ -25,7 +27,7 @@
 				{entry.votes} votes
 			</span>
 		</div>
-		<p class="font-display text-lg font-bold leading-snug tracking-tight text-ink sm:text-xl">
+		<p class="whitespace-pre-line font-display font-semibold tracking-[-0.01em] text-ink {textClass}">
 			{entry.text}
 		</p>
 		<p class="mt-2 text-xs text-faint">by {entry.author_name ?? 'Anonymous'}</p>

@@ -71,3 +71,18 @@ CREATE TABLE IF NOT EXISTS rate_limits (
 );
 
 CREATE INDEX IF NOT EXISTS idx_rate_limits_expires ON rate_limits(expires_at);
+
+CREATE TABLE IF NOT EXISTS tags (
+  id         TEXT PRIMARY KEY,
+  label      TEXT NOT NULL,
+  created_at INTEGER NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS entry_tags (
+  entry_id TEXT NOT NULL,
+  tag_id   TEXT NOT NULL,
+  PRIMARY KEY (entry_id, tag_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_entry_tags_tag   ON entry_tags(tag_id);
+CREATE INDEX IF NOT EXISTS idx_entry_tags_entry ON entry_tags(entry_id);

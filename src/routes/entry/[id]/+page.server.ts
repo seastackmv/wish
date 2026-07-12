@@ -1,6 +1,8 @@
 import { error, fail } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 import type { Entry, Comment } from '$lib/types';
+import { parseTagsJson } from '$lib/tags';
+import { TAGS_SELECT } from '$lib/server/tags';
 import { verifyTurnstile } from '$lib/server/turnstile';
 import { voterHashFromCookie } from '$lib/server/security';
 import { requireAdmin, setEntryHidden, setCommentHidden } from '$lib/server/moderation';
@@ -17,11 +19,12 @@ export const load: PageServerLoad = async ({ params, platform, cookies, locals }
 		.prepare(
 			`SELECT e.id, e.type, e.text, e.category, e.votes, e.comment_count,
 			        e.author_name, e.image_key, e.hidden, e.month_year, e.created_at,
-			        EXISTS(SELECT 1 FROM votes v WHERE v.entry_id = e.id AND v.voter_hash = ?) AS user_voted
+			        EXISTS(SELECT 1 FROM votes v WHERE v.entry_id = e.id AND v.voter_hash = ?) AS user_voted,
+			        ${TAGS_SELECT}
 			 FROM entries e WHERE e.id = ?`
 		)
 		.bind(voterHash, params.id)
-		.first<Omit<Entry, 'user_voted'> & { user_voted: number }>();
+		.first<Omit<Entry, 'user_voted' | 'tags'> & { user_voted: number; tags_json: string }>();
 
 	if (!entry) throw error(404, 'That entry does not exist.');
 	if (entry.hidden && !isAdmin) throw error(404, 'That entry does not exist.');
@@ -34,8 +37,10 @@ export const load: PageServerLoad = async ({ params, platform, cookies, locals }
 		.bind(params.id)
 		.all<Comment>();
 
+	const { tags_json, ...entryRest } = entry;
+
 	return {
-		entry: { ...entry, user_voted: !!entry.user_voted } as Entry,
+		entry: { ...entryRest, user_voted: !!entry.user_voted, tags: parseTagsJson(tags_json) } as Entry,
 		comments: commentRows.results ?? [],
 		isAdmin
 	};
