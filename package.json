@@ -17,7 +17,10 @@
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
+		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+		"db:migrations": "wrangler d1 migrations list wish-db --remote",
+		"db:migrate": "wrangler d1 migrations apply wish-db --remote",
+		"db:migrate:local": "wrangler d1 migrations apply wish-db --local"
 	},
 	"devDependencies": {
 		"@cloudflare/workers-types": "^4.20260511.1",

@@ -6,6 +6,7 @@ pages_build_output_dir = ".svelte-kit/cloudflare"
 binding = "DB"
 database_name = "wish-db"
 database_id = "623c351f-6c40-4f2a-8390-6e7f94faef64"
+migrations_dir = "migrations"
 
 [[r2_buckets]]
 binding = "BUCKET"
