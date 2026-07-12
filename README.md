@@ -47,20 +47,17 @@ bun run db:migrate:local   # apply them to the local dev DB
 ```
 
 Add new migrations with the next number in sequence (e.g. `007_*.sql`). Prefer
-additive, backwards-compatible changes and apply them **before** deploying code
-that depends on them — otherwise the live site can 500 in the gap between deploy
-and migration.
+additive, backwards-compatible changes and run `bun run db:migrate` **before**
+deploying code that depends on them — otherwise the live site can 500 in the gap
+between deploy and migration.
 
 ## Deployment
 
 Every push to `main` is built and deployed automatically by Cloudflare Pages.
 Runtime bindings and secrets are configured in the Pages dashboard.
 
-Pending migrations are applied automatically by the `D1 migrations` GitHub
-Action (`.github/workflows/migrate.yml`) whenever a push to `main` touches
-`migrations/`. It needs two repository secrets: `CLOUDFLARE_API_TOKEN` (with
-`D1:Edit`) and `CLOUDFLARE_ACCOUNT_ID`. You can also run `bun run db:migrate`
-by hand at any time.
+Migrations are applied manually — run `bun run db:migrate` when a push adds a
+migration (see above). It only applies files not yet recorded in `d1_migrations`.
 
 ## License
 
