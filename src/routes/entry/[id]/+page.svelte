@@ -6,26 +6,25 @@
 	import VoteButton from '$lib/components/VoteButton.svelte';
 	import TagChip from '$lib/components/TagChip.svelte';
 	import Turnstile from '$lib/components/Turnstile.svelte';
+	import { openShareSheet } from '$lib/shareState.svelte';
 
 	let { data, form }: { data: PageData; form: ActionData } = $props();
 
 	const entry = $derived(data.entry);
 	let postAnonymously = $state(false);
 	let posting = $state(false);
-	let copied = $state(false);
 	let commentToken = $state('');
 	let captchaKey = $state(0);
-
-	function share() {
-		navigator.clipboard?.writeText(window.location.href).then(() => {
-			copied = true;
-			setTimeout(() => (copied = false), 1800);
-		});
-	}
 </script>
 
 <svelte:head>
 	<title>{entry.type === 'wish' ? 'Wish' : 'Problem'} · wish</title>
+	<meta property="og:type" content="article" />
+	<meta property="og:site_name" content="Wish." />
+	<meta property="og:title" content={entry.text.length > 90 ? entry.text.slice(0, 90) + '…' : entry.text} />
+	<meta property="og:description" content="{entry.votes} people support this. Add your voice — vote anonymously on wish.seastack.mv" />
+	<meta property="og:url" content={`https://wish.seastack.mv/entry/${entry.id}`} />
+	<meta name="twitter:card" content="summary" />
 </svelte:head>
 
 <article class="mx-auto max-w-2xl px-5 py-10 sm:py-14">
@@ -68,16 +67,11 @@
 			</span>
 			<button
 				type="button"
-				onclick={share}
-				aria-live="polite"
+				onclick={() => openShareSheet(entry)}
 				class="ml-auto inline-flex items-center gap-2 rounded-full bg-raised px-4 py-2 text-sm font-semibold text-ink transition-colors hover:bg-raised-2"
 			>
-				{#if copied}
-					Copied ✓
-				{:else}
-					<svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></svg>
-					Share
-				{/if}
+				<svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></svg>
+				Share
 			</button>
 		</div>
 

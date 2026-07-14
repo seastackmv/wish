@@ -4,6 +4,7 @@
 	import TypeBadge from './TypeBadge.svelte';
 	import VoteButton from './VoteButton.svelte';
 	import TagChip from './TagChip.svelte';
+	import { openShareSheet } from '$lib/shareState.svelte';
 
 	let { entry }: { entry: Entry } = $props();
 
@@ -51,7 +52,15 @@
 				<svg class="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.9-.9L3 21l1.9-5.6A8.5 8.5 0 1 1 21 11.5z"/></svg>
 				{entry.comment_count ?? 0}
 			</span>
-			<span class="ml-auto max-w-[45%] truncate text-sm text-faint">{entry.author_name ?? 'Anonymous'}</span>
+			<button
+				type="button"
+				onclick={() => openShareSheet(entry)}
+				aria-label="Share this entry"
+				class="relative z-10 grid h-9 w-9 place-items-center rounded-full text-muted transition-colors hover:bg-raised hover:text-ink"
+			>
+				<svg class="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></svg>
+			</button>
+			<span class="ml-auto max-w-[40%] truncate text-sm text-faint">{entry.author_name ?? 'Anonymous'}</span>
 		</div>
 	</div>
 </article>

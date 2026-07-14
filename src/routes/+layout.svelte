@@ -4,6 +4,7 @@
 	import type { Snippet } from 'svelte';
 	import { page } from '$app/state';
 	import type { LayoutData } from './$types';
+	import ShareSheet from '$lib/components/ShareSheet.svelte';
 
 	let { children, data }: { children: Snippet; data: LayoutData } = $props();
 
@@ -208,6 +209,8 @@
 		</div>
 	</footer>
 </div>
+
+<ShareSheet />
 
 <svelte:window
 	onclick={(e) => {

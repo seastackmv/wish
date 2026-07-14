@@ -3,6 +3,7 @@
 	import { categoryMeta } from '$lib/types';
 	import { fitTextClass, timeAgo } from '$lib/utils';
 	import TagChip from './TagChip.svelte';
+	import { openShareSheet } from '$lib/shareState.svelte';
 
 	let {
 		entry,
@@ -117,9 +118,19 @@
 			{entry.comment_count ?? 0}
 		</span>
 
+		<button
+			type="button"
+			onclick={() => openShareSheet(entry)}
+			disabled={!interactive}
+			aria-label="Share this entry"
+			class="ml-auto grid h-9 w-9 place-items-center rounded-full text-muted transition-colors hover:bg-raised hover:text-ink disabled:cursor-default"
+		>
+			<svg class="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></svg>
+		</button>
+
 		<a
 			href={`/entry/${entry.id}`}
-			class="ml-auto inline-flex items-center gap-1 text-sm font-semibold text-muted transition-colors hover:text-ink"
+			class="inline-flex items-center gap-1 text-sm font-semibold text-muted transition-colors hover:text-ink"
 			tabindex={interactive ? 0 : -1}
 		>
 			Open
