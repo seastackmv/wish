@@ -11,7 +11,7 @@
 </script>
 
 <article
-	class="group relative flex flex-col overflow-hidden rounded-[1.75rem] bg-surface transition-colors duration-300 hover:bg-raised/50"
+	class="group relative flex flex-col overflow-hidden rounded-3xl bg-surface transition-colors duration-300 hover:bg-raised/50 sm:rounded-[1.75rem]"
 >
 	{#if entry.image_key}
 		<img
@@ -19,18 +19,18 @@
 			alt="Attached by the author"
 			loading="lazy"
 			decoding="async"
-			class="h-48 w-full object-cover sm:h-60"
+			class="h-40 w-full object-cover sm:h-60"
 		/>
 	{/if}
 
-	<div class="flex flex-1 flex-col gap-5 p-6 sm:p-7">
+	<div class="flex flex-1 flex-col gap-3.5 p-4 sm:gap-5 sm:p-7">
 		<div class="flex flex-wrap items-center gap-2">
 			<TypeBadge type={entry.type} size="sm" />
 			<span class="ml-auto text-xs font-medium text-faint">{timeAgo(entry.created_at)}</span>
 		</div>
 
 		<a href={`/entry/${entry.id}`} class="after:absolute after:inset-0 after:content-['']">
-			<p class="line-clamp-5 whitespace-pre-line font-display font-semibold tracking-[-0.01em] text-ink {textClass}">
+			<p class="line-clamp-4 whitespace-pre-line font-display font-semibold tracking-[-0.01em] text-ink sm:line-clamp-5 {textClass}">
 				{entry.text}
 			</p>
 		</a>
@@ -43,7 +43,7 @@
 			</div>
 		{/if}
 
-		<div class="mt-auto flex items-center gap-4 pt-1">
+		<div class="mt-auto flex items-center gap-4 pt-0 sm:pt-1">
 			<div class="relative z-10">
 				<VoteButton id={entry.id} votes={entry.votes} voted={entry.user_voted ?? false} size="md" />
 			</div>

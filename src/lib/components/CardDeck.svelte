@@ -276,7 +276,7 @@
 	</div>
 {:else}
 	<!-- progress -->
-	<div class="mx-auto mb-4 flex max-w-[30rem] items-center gap-3 px-1">
+	<div class="mx-auto mb-3 flex max-w-[30rem] items-center gap-3 px-1 sm:mb-4">
 		<div class="h-1.5 flex-1 overflow-hidden rounded-full bg-raised">
 			<div
 				class="h-full rounded-full bg-accent transition-[width] duration-300 ease-out"
@@ -290,7 +290,7 @@
 
 	<!-- deck -->
 	<div
-		class="relative mx-auto h-[clamp(430px,70vh,660px)] w-full max-w-[30rem] select-none"
+		class="relative mx-auto h-[clamp(340px,52vh,520px)] w-full max-w-[30rem] select-none sm:h-[clamp(430px,70vh,660px)]"
 		class:bounce-right={bounce === 1}
 		class:bounce-left={bounce === -1}
 		role="group"
@@ -366,8 +366,9 @@
 		</div>
 	</div>
 
-	<!-- controls -->
-	<div class="mx-auto mt-6 flex max-w-[30rem] items-center justify-center gap-4">
+	<!-- controls (desktop only; on mobile swipe + the in-card vote button drive the deck,
+	     leaving the bottom edge clear for the fixed filter bar) -->
+	<div class="mx-auto mt-4 hidden max-w-[30rem] items-center justify-center gap-4 sm:mt-6 sm:flex">
 		<button
 			type="button"
 			onclick={() => go(-1)}
@@ -408,7 +409,7 @@
 		<kbd class="deck-kbd">↑</kbd> support · <kbd class="deck-kbd">↓</kbd> remove ·
 		<kbd class="deck-kbd">↵</kbd> open
 	</p>
-	<p class="mt-5 text-center text-xs text-faint sm:hidden">Swipe left or right to browse · tap <span class="font-bold text-vote">↑</span> to support</p>
+	<p class="mt-3 text-center text-xs text-faint sm:hidden">Swipe left or right to browse · tap <span class="font-bold text-vote">↑</span> to support</p>
 {/if}
 
 <style>

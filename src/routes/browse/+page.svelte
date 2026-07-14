@@ -63,11 +63,11 @@
 	<title>Browse · wish</title>
 </svelte:head>
 
-<section class="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
-	<header class="mb-6 flex flex-wrap items-end justify-between gap-4">
-		<div>
-			<h1 class="font-display text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">The feed</h1>
-			<p class="mt-2 text-[15px] text-muted">
+<section class="mx-auto max-w-6xl px-4 pb-28 pt-5 sm:px-6 sm:py-10">
+	<header class="mb-4 flex items-start justify-between gap-3 sm:mb-6 sm:items-end sm:gap-4">
+		<div class="min-w-0">
+			<h1 class="font-display text-2xl font-extrabold tracking-tight text-ink sm:text-4xl">The feed</h1>
+			<p class="mt-1 hidden text-sm text-muted sm:mt-2 sm:block sm:text-[15px]">
 				Everything citizens are wishing for and struggling with.
 			</p>
 		</div>
@@ -76,7 +76,7 @@
 			<button
 				onclick={() => (view = 'grid')}
 				aria-pressed={view === 'grid'}
-				class="inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-semibold transition-colors {view === 'grid'
+				class="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold transition-colors sm:px-3.5 sm:py-2 {view === 'grid'
 					? 'bg-surface text-ink shadow-sm'
 					: 'text-muted hover:text-ink'}"
 			>
@@ -86,7 +86,7 @@
 			<button
 				onclick={() => (view = 'cards')}
 				aria-pressed={view === 'cards'}
-				class="inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-semibold transition-colors {view === 'cards'
+				class="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold transition-colors sm:px-3.5 sm:py-2 {view === 'cards'
 					? 'bg-surface text-ink shadow-sm'
 					: 'text-muted hover:text-ink'}"
 			>
@@ -96,38 +96,9 @@
 		</div>
 	</header>
 
-	<div class="mb-6 space-y-4">
-		<div class="flex flex-wrap items-center gap-3">
-			<div role="group" aria-label="Filter entries" class="inline-flex gap-1 rounded-full bg-raised p-1">
-				{#each tabs as t}
-					<button
-						onclick={() => (tab = t.value)}
-						aria-pressed={tab === t.value}
-						class="rounded-full px-4 py-2 text-sm font-semibold transition-colors {tab === t.value
-							? 'bg-surface text-ink'
-							: 'text-muted hover:text-ink'}"
-					>
-						{t.label}
-						<span class="ml-1 tabular-nums text-faint">{t.count}</span>
-					</button>
-				{/each}
-			</div>
-
-			<div role="group" aria-label="Sort entries" class="inline-flex gap-1 rounded-full bg-raised p-1">
-				{#each [{ value: 'popular', label: 'Popular' }, { value: 'latest', label: 'Latest' }] as const as s}
-					<button
-						onclick={() => (sort = s.value)}
-						aria-pressed={sort === s.value}
-						class="rounded-full px-4 py-2 text-sm font-semibold transition-colors {sort === s.value
-							? 'bg-surface text-ink'
-							: 'text-muted hover:text-ink'}"
-					>
-						{s.label}
-					</button>
-				{/each}
-			</div>
-
-			<div class="relative ml-auto min-w-[180px] flex-1 sm:max-w-xs">
+	<div class="mb-4 space-y-2.5 sm:mb-6 sm:space-y-4">
+		<div class="flex flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
+			<div class="relative order-first sm:order-last sm:ml-auto sm:min-w-[200px] sm:max-w-xs sm:flex-1">
 				<svg aria-hidden="true" class="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-faint" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
 				<input
 					bind:value={query}
@@ -137,12 +108,44 @@
 					class="w-full rounded-full bg-raised py-2.5 pl-11 pr-4 text-sm text-ink outline-none transition-colors placeholder:text-faint focus:bg-raised-2"
 				/>
 			</div>
+
+			<!-- desktop inline filters; on mobile these live in the fixed bottom bar -->
+			<div class="hidden items-center gap-3 sm:flex">
+				<div role="group" aria-label="Filter entries" class="inline-flex shrink-0 gap-1 rounded-full bg-raised p-1">
+					{#each tabs as t}
+						<button
+							onclick={() => (tab = t.value)}
+							aria-pressed={tab === t.value}
+							class="shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold transition-colors {tab === t.value
+								? 'bg-surface text-ink'
+								: 'text-muted hover:text-ink'}"
+						>
+							{t.label}
+							<span class="ml-1 tabular-nums text-faint">{t.count}</span>
+						</button>
+					{/each}
+				</div>
+
+				<div role="group" aria-label="Sort entries" class="inline-flex shrink-0 gap-1 rounded-full bg-raised p-1">
+					{#each [{ value: 'popular', label: 'Popular' }, { value: 'latest', label: 'Latest' }] as const as s}
+						<button
+							onclick={() => (sort = s.value)}
+							aria-pressed={sort === s.value}
+							class="shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold transition-colors {sort === s.value
+								? 'bg-surface text-ink'
+								: 'text-muted hover:text-ink'}"
+						>
+							{s.label}
+						</button>
+					{/each}
+				</div>
+			</div>
 		</div>
 
 		{#if allTags.length}
-			<div class="space-y-3">
+			<div class="space-y-2.5 sm:space-y-3">
 				{#if activeTag}
-					<div class="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-2xl bg-accent/10 px-4 py-3">
+					<div class="flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-2xl bg-accent/10 px-3 py-2.5 sm:px-4 sm:py-3">
 						<span class="text-sm text-muted">Filtering by</span>
 						<span class="inline-flex items-center gap-1 rounded-full bg-accent px-3 py-1 text-sm font-bold text-on-accent">
 							<span class="opacity-60">#</span>{activeTagMeta?.label ?? activeTag}
@@ -155,8 +158,8 @@
 					</div>
 				{/if}
 
-				<div class="flex flex-wrap items-center gap-1.5">
-					<span class="mr-1 text-xs font-bold uppercase tracking-wide text-faint">Tags</span>
+				<div class="flex items-center gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none] sm:flex-wrap sm:overflow-visible sm:pb-0 [&::-webkit-scrollbar]:hidden">
+					<span class="mr-0.5 shrink-0 text-xs font-bold uppercase tracking-wide text-faint sm:mr-1">Tags</span>
 					{#each shownTags as t (t.id)}
 						<TagChip id={t.id} label={t.label} count={t.count} active={t.id === activeTag} />
 					{:else}
@@ -194,12 +197,47 @@
 			{/if}
 		</div>
 	{:else}
-		<div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+		<div class="grid grid-cols-1 gap-3 sm:gap-5 md:grid-cols-2">
 			{#each entries as entry (entry.id)}
 				<VirtualItem>
 					<EntryCard {entry} />
 				</VirtualItem>
 			{/each}
+		</div>
+	{/if}
+
+	<!-- mobile-only bottom filter bar: type + sort within thumb's reach -->
+	{#if wishes.length + pains.length > 0}
+		<div
+			class="fixed inset-x-0 bottom-0 z-40 border-t border-hairline bg-bg/90 backdrop-blur-xl sm:hidden"
+			style="padding-bottom: env(safe-area-inset-bottom);"
+		>
+			<div class="mx-auto flex max-w-6xl items-center gap-2 px-3 py-2.5">
+				<div role="group" aria-label="Filter entries" class="flex flex-1 gap-1 rounded-full bg-raised p-1">
+					{#each tabs as t}
+						<button
+							onclick={() => (tab = t.value)}
+							aria-pressed={tab === t.value}
+							class="flex-1 whitespace-nowrap rounded-full px-2 py-2 text-[13px] font-bold transition-colors {tab === t.value
+								? 'bg-surface text-ink shadow-sm'
+								: 'text-muted'}"
+						>
+							{t.label}
+						</button>
+					{/each}
+				</div>
+
+				<button
+					onclick={() => (sort = sort === 'popular' ? 'latest' : 'popular')}
+					aria-label={sort === 'popular'
+						? 'Sorted by most popular. Tap to sort by latest.'
+						: 'Sorted by latest. Tap to sort by most popular.'}
+					class="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-raised px-3.5 py-2.5 text-[13px] font-bold text-ink transition-transform active:scale-95"
+				>
+					<svg class="h-4 w-4 text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10l5-5 5 5M7 14l5 5 5-5"/></svg>
+					{sort === 'popular' ? 'Popular' : 'Latest'}
+				</button>
+			</div>
 		</div>
 	{/if}
 </section>

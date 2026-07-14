@@ -46,7 +46,7 @@
 	{/if}
 
 	<!-- meta row -->
-	<div class="flex shrink-0 flex-wrap items-center gap-2 px-6 pt-5 sm:px-8">
+	<div class="flex shrink-0 flex-wrap items-center gap-2 px-5 pt-4 sm:px-8 sm:pt-5">
 		<span
 			class="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold uppercase tracking-wide"
 			style="background-color: color-mix(in srgb, {isWish
@@ -68,7 +68,7 @@
 	</div>
 
 	<!-- body: auto-fits and stays readable at any length -->
-	<div class="deck-scroll flex min-h-0 flex-1 flex-col overflow-y-auto px-6 py-6 sm:px-8">
+	<div class="deck-scroll flex min-h-0 flex-1 flex-col overflow-y-auto px-5 py-5 sm:px-8 sm:py-6">
 		<p
 			class="m-auto w-full whitespace-pre-line text-pretty font-display font-semibold tracking-[-0.01em] text-ink {textClass}"
 		>
@@ -77,7 +77,7 @@
 	</div>
 
 	{#if entry.tags?.length}
-		<div class="flex shrink-0 flex-wrap gap-1.5 px-6 pb-1 sm:px-8">
+		<div class="flex shrink-0 flex-wrap gap-1.5 px-5 pb-1 sm:px-8">
 			{#each entry.tags as tag (tag.id)}
 				<TagChip id={tag.id} label={tag.label} />
 			{/each}
@@ -86,7 +86,7 @@
 
 	<!-- footer / actions -->
 	<div
-		class="flex shrink-0 items-center gap-3 border-t border-hairline px-6 py-4 sm:px-8"
+		class="flex shrink-0 items-center gap-3 border-t border-hairline px-5 py-3.5 sm:px-8 sm:py-4"
 	>
 		<button
 			type="button"
